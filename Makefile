@@ -46,8 +46,8 @@ ifeq ($(USE_SYSTEM_GTEST),no)
 GTEST_CXXFLAGS := -std=gnu++14
 GTEST_LIBS := gtest.a
 else
-GTEST_CXXFLAGS := $(shell gtest-config --cxxflags)
-GTEST_LIBS := $(shell gtest-config --libs)
+GTEST_CXXFLAGS ?= $(shell gtest-config --cxxflags)
+GTEST_LIBS ?= $(shell gtest-config --libs)
 endif
 
 CORE_OBJECT_FILES := libminijail.o syscall_filter.o signal_handler.o \
@@ -73,6 +73,7 @@ clean: CLEAN(minijail0)
 
 
 CC_LIBRARY(libminijail.so): LDLIBS += -lcap
+CC_LIBRARY(libminijail.so): LDFLAGS += -Wl,-soname,libminijail.so
 CC_LIBRARY(libminijail.so): $(CORE_OBJECT_FILES)
 clean: CLEAN(libminijail.so)
 
@@ -91,6 +92,7 @@ TEST(CXX_BINARY(libminijail_unittest)): CC_LIBRARY(libminijailpreload.so)
 
 
 CC_LIBRARY(libminijailpreload.so): LDLIBS += -lcap -ldl
+CC_LIBRARY(libminijailpreload.so): LDFLAGS += -Wl,-soname,libminijail.so
 CC_LIBRARY(libminijailpreload.so): libminijailpreload.o $(CORE_OBJECT_FILES)
 clean: CLEAN(libminijailpreload.so)
 
